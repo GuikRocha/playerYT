@@ -4,6 +4,12 @@ let gInserted = false;
 let gInsertedScript = false;
 let unmute = false;
 
+// Função para pegar o parâmetro da URL (ID do vídeo)
+function getVideoIDFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('video_id');  // Pega o ID do vídeo a partir da URL
+}
+
 function globalInsert() {
     if (!gInserted) {
         const cssLink = document.createElement("link");
@@ -40,7 +46,7 @@ function instanceStyle(id, color, radius) {
 function init(options) {
     const {
         id,
-        embed,
+        videoID,
         loop = true,
         color,
         radius,
@@ -49,25 +55,13 @@ function init(options) {
         autoplay = false
     } = options;
 
-    globalInsert();
-
-    if (gInsertedScript) {
-        gInsertedScript.addEventListener("load", function () {
-            setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay);
-        });
-    } else {
-        setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay);
-    }
-}
-
-function setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay) {
     instanceStyle(id, color, radius);
 
     const container = document.getElementById(id);
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${embed}`;
+    iframe.src = `https://www.youtube.com/embed/${videoID}`; // Carrega o vídeo dinamicamente via ID
     iframe.allowFullscreen = true;
     iframe.allowtransparency = true;
     iframe.setAttribute("allow", "autoplay");
@@ -124,3 +118,40 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
         }
     });
 }
+
+function start() {
+    const videoID = getVideoIDFromURL(); // Pega o ID do vídeo da URL
+    if (!videoID) {
+        console.error("ID do vídeo não encontrado na URL.");
+        return;
+    }
+
+    globalInsert();
+    if (gInsertedScript) {
+        gInsertedScript.addEventListener("load", function () {
+            init({
+                id: 'player',
+                videoID: videoID, // Passa o ID do vídeo
+                loop: false,
+                color: 'red',
+                radius: '10',
+                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+                settings: ['captions', 'quality', 'speed', 'loop'],
+                autoplay: false,
+            });
+        });
+    } else {
+        init({
+            id: 'player',
+            videoID: videoID, // Passa o ID do vídeo
+            loop: false,
+            color: 'red',
+            radius: '10',
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+            settings: ['captions', 'quality', 'speed', 'loop'],
+            autoplay: false,
+        });
+    }
+}
+
+start(); // Inicia o player quando o script for carregado
