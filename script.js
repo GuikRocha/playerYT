@@ -3,6 +3,11 @@
 let gInserted = false;
 let unmute = false;
 
+function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
 function globalInsert() {
     if (!gInserted) {
         const style = document.createElement("style");
@@ -136,13 +141,19 @@ function start(options) {
     init(options);
 }
 
-start({
-    id: 'player',
-    embed: 'bPh9MQNQOa0',
-    loop: false,
-    color: 'red',
-    radius: '10',
-    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
-    settings: ['captions', 'quality', 'speed', 'loop'],
-    autoplay: false,
-});
+const embed = getQueryParam('embed'); // Obtém o parâmetro 'embed' da URL
+
+if (embed) {
+    start({
+        id: 'player',
+        embed: embed, // Usa o embed fornecido pela URL
+        loop: false,
+        color: 'red',
+        radius: '10',
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+        settings: ['captions', 'quality', 'speed', 'loop'],
+        autoplay: false,
+    });
+} else {
+    console.error('Parâmetro "embed" não foi encontrado na URL.');
+}
