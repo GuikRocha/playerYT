@@ -123,4 +123,4 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
             player.play();
         }
     });
-}
+} 
