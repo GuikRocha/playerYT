@@ -1,14 +1,26 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guilherme Rocha | Curso Online</title>
     <link rel="stylesheet" href="style.css">
+    <title>Video Player</title>
 </head>
 <body>
-    <div id="player"></div> <!-- Este div será onde o player será renderizado -->
-
-    <script src="script.js"></script> <!-- Chamando o script que gerencia o player -->
+    <div id="player"></div>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            init({
+                id: 'player',
+                loop: false,
+                color: 'red',
+                radius: '10',
+                controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+                settings: ['captions', 'quality', 'speed', 'loop'],
+                autoplay: false,
+            });
+        });
+    </script>
 </body>
 </html>
