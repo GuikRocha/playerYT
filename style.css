@@ -1,12 +1,23 @@
+.player-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px; /* Limite de largura opcional */
+    height: 450px; /* Altura proporcional para vídeos 16:9 */
+    margin: 0 auto;
+    background-color: #000;
+}
+
 .plyr iframe[id^=youtube] {
-    top: -100%!important;
-    min-height: 300%!important;
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .plyr {
-    filter: blur(1.5rem);
-    transition: filter 1.3s;
+    transition: filter 1.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .unmute-button {
@@ -17,10 +28,9 @@
     left: 50%!important;
     transform: translate(-50%, -50%)!important;
     background: #ff3c3c!important;
-    padding: 15px!important;
+    padding: 10px 20px!important;
     border-radius: 5px!important;
-    width: 50%!important;
-    box-shadow: 0px 3px 10px #00000077!important;
+    width: 150px!important;
     cursor: pointer!important;
     z-index: 9999999999!important;
     color: #fff!important;
