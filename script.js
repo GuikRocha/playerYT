@@ -70,7 +70,6 @@ function initPlayer(options) {
         loop: { active: loop },
         controls,
         settings,
-        muted: autoplay ? false : true,
         keyboard: { focused: false, global: false }
     });
 
