@@ -96,11 +96,16 @@ function init(options) {
         if (autoplay) {
             container.appendChild(unmuteButton);
             unmuteButton.addEventListener("click", function () {
-                player.muted = false;
-                unmuteButton.style.display = "none";
-                player.currentTime = 0;
-                unmute = true;
-            });
+    player.muted = false;
+    unmuteButton.style.display = "none";
+    if (!player.playing) {
+        player.play().catch(() => {
+            console.error('Erro ao tentar reproduzir o vídeo.');
+        });
+    }
+    unmute = true;
+});
+
 
             player.on("click", function () {
                 if (player.muted && !unmute) {
