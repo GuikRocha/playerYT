@@ -14,12 +14,7 @@ function globalInsert() {
 
         const script = document.createElement("script");
         script.src = "https://cdn.plyr.io/3.7.8/plyr.js";
-        const existingScript = document.body.getElementsByTagName("script")[0];
-        if (existingScript) {
-            document.body.insertBefore(script, existingScript);
-        } else {
-            document.body.appendChild(script);
-        }
+        document.body.appendChild(script);
 
         gInserted = true;
         gInsertedScript = script;
@@ -32,6 +27,7 @@ function instanceStyle(id, color, radius) {
         #${id} {
             --plyr-color-main: ${color || "#00b3ff"};
             border-radius: ${radius || "10"}px;
+            overflow: hidden;
         }
     `;
     document.head.appendChild(style);
@@ -60,14 +56,13 @@ function initPlayer(options) {
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${embed}`;
+    iframe.src = `https://www.youtube.com/embed/${embed}?rel=0&showinfo=0`;
     iframe.allowFullscreen = true;
     iframe.allowtransparency = true;
-    iframe.setAttribute("allow", "autoplay");
-
-    const unmuteButton = document.createElement("button");
-    unmuteButton.className = `${id}-unmute unmute-button`;
-    unmuteButton.innerHTML = "&#128266; Ativar Áudio";
+    iframe.setAttribute("allow", "autoplay; fullscreen");
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
 
     container.appendChild(iframe);
 
@@ -80,39 +75,9 @@ function initPlayer(options) {
     });
 
     player.on("ready", function () {
-        const overlay = document.createElement("div");
-        overlay.style.position = "absolute";
-        overlay.style.top = "0";
-        overlay.style.left = "0";
-        overlay.style.width = "100%";
-        overlay.style.height = "100vh";
-
-        const videoWrapper = document.querySelector(`#${id} > div.plyr__video-wrapper`);
-        videoWrapper.appendChild(overlay);
-
         document.querySelector(`#${id}`).style.filter = "blur(0)";
-
+        
         if (autoplay) {
-            container.appendChild(unmuteButton);
-            unmuteButton.addEventListener("click", function () {
-                player.muted = false;
-                unmuteButton.style.display = "none";
-                player.currentTime = 0;
-                unmute = true;
-            });
-
-            player.on("click", function () {
-                if (player.muted && !unmute) {
-                    player.muted = false;
-                    unmuteButton.style.display = "none";
-                    player.currentTime = 0;
-                    player.play();
-                    unmute = true;
-                } else if (!player.muted) {
-                    unmuteButton.style.display = "none";
-                }
-            });
-
             player.play();
         }
     });
