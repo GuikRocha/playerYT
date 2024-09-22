@@ -4,10 +4,9 @@ let gInserted = false;
 let gInsertedScript = false;
 let unmute = false;
 
-// Função para pegar o parâmetro da URL (ID do vídeo)
 function getVideoIDFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('video_id');  // Pega o ID do vídeo a partir da URL
+    return urlParams.get('video_id');  // Pega o ID do vídeo da URL
 }
 
 function globalInsert() {
@@ -20,12 +19,7 @@ function globalInsert() {
 
         const script = document.createElement("script");
         script.src = "https://cdn.plyr.io/3.7.8/plyr.js";
-        const existingScript = document.body.getElementsByTagName("script")[0];
-        if (existingScript) {
-            document.body.insertBefore(script, existingScript);
-        } else {
-            document.body.appendChild(script);
-        }
+        document.body.appendChild(script);
 
         gInserted = true;
         gInsertedScript = script;
@@ -47,7 +41,7 @@ function init(options) {
     const {
         id,
         videoID,
-        loop = true,
+        loop = false,
         color,
         radius,
         controls = ["play-large", "play", "progress", "current-time", "mute", "volume", "captions", "settings", "pip", "airplay", "fullscreen"],
@@ -61,7 +55,7 @@ function init(options) {
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${videoID}`; // Carrega o vídeo dinamicamente via ID
+    iframe.src = `https://www.youtube.com/embed/${videoID}?enablejsapi=1&autoplay=1&mute=1`;
     iframe.allowFullscreen = true;
     iframe.allowtransparency = true;
     iframe.setAttribute("allow", "autoplay");
@@ -76,7 +70,7 @@ function init(options) {
         loop: { active: loop },
         controls,
         settings,
-        muted: autoplay ? false : true,
+        muted: true,  // Vídeo sempre começa mutado
         keyboard: { focused: false, global: false }
     });
 
@@ -93,33 +87,24 @@ function init(options) {
 
         document.querySelector(`#${id}`).style.filter = "blur(0)";
 
-        if (autoplay) {
-            container.appendChild(unmuteButton);
-            unmuteButton.addEventListener("click", function () {
-    player.muted = false;
-    unmuteButton.style.display = "none";
-    if (!player.playing) {
-        player.play().catch(() => {
-            console.error('Erro ao tentar reproduzir o vídeo.');
-        });
-    }
-    unmute = true;
-});
-
-
-            player.on("click", function () {
-                if (player.muted && !unmute) {
-                    player.muted = false;
-                    unmuteButton.style.display = "none";
-                    player.currentTime = 0;
-                    player.play();
-                    unmute = true;
-                } else if (!player.muted) {
-                    unmuteButton.style.display = "none";
-                }
+        container.appendChild(unmuteButton);
+        unmuteButton.addEventListener("click", function () {
+            player.muted = false;
+            unmuteButton.style.display = "none";
+            player.play().catch(() => {
+                console.error("Erro ao tentar reproduzir o vídeo.");
             });
+            unmute = true;
+        });
 
-            player.play();
+        player.play().catch(() => {
+            console.error("Erro ao tentar reproduzir o vídeo automaticamente.");
+        });
+    });
+
+    player.on("volumechange", function () {
+        if (!player.muted) {
+            unmuteButton.style.display = "none";
         }
     });
 }
@@ -142,7 +127,7 @@ function start() {
                 radius: '10',
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
                 settings: ['captions', 'quality', 'speed', 'loop'],
-                autoplay: false,
+                autoplay: false
             });
         });
     } else {
@@ -154,7 +139,7 @@ function start() {
             radius: '10',
             controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
             settings: ['captions', 'quality', 'speed', 'loop'],
-            autoplay: false,
+            autoplay: false
         });
     }
 }
