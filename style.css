@@ -1,8 +1,10 @@
 /* Estilos do player */
-.plyr {
-    width: 100%;
-    height: auto;
+#player {
     position: relative;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
 }
 
 /* Estilos do botão de desmutar */
@@ -30,4 +32,9 @@
 /* Efeito no botão ao passar o mouse */
 .unmute-button:hover {
     transform: translate(-50%, -50%) scale(1.1) !important;
+}
+
+/* Esconde os controles do player nativo do YouTube */
+iframe {
+    border: none;
 }
