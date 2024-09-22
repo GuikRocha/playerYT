@@ -34,12 +34,12 @@ function globalInsert() {
 
 function instanceStyle(id, color, radius) {
     const style = document.createElement("style");
-    style.innerHTML = `
+    style.innerHTML = 
         #${id} {
             --plyr-color-main: ${color || "#00b3ff"};
             border-radius: ${radius || "10"}px;
         }
-    `;
+    ;
     document.head.appendChild(style);
 }
 
@@ -61,18 +61,18 @@ function init(options) {
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${videoID}`; // Carrega o vídeo dinamicamente via ID
+    iframe.src = https://www.youtube.com/embed/${videoID}; // Carrega o vídeo dinamicamente via ID
     iframe.allowFullscreen = true;
     iframe.allowtransparency = true;
     iframe.setAttribute("allow", "autoplay");
 
     const unmuteButton = document.createElement("button");
-    unmuteButton.className = `${id}-unmute unmute-button`;
+    unmuteButton.className = ${id}-unmute unmute-button;
     unmuteButton.innerHTML = "&#128266; Ativar Áudio";
 
     container.appendChild(iframe);
 
-    const player = new Plyr(`#${id}`, {
+    const player = new Plyr(#${id}, {
         loop: { active: loop },
         controls,
         settings,
@@ -88,10 +88,10 @@ function init(options) {
         overlay.style.width = "100%";
         overlay.style.height = "100vh";
 
-        const videoWrapper = document.querySelector(`#${id} > div.plyr__video-wrapper`);
+        const videoWrapper = document.querySelector(#${id} > div.plyr__video-wrapper);
         videoWrapper.appendChild(overlay);
 
-        document.querySelector(`#${id}`).style.filter = "blur(0)";
+        document.querySelector(#${id}).style.filter = "blur(0)";
 
         if (autoplay) {
             container.appendChild(unmuteButton);
