@@ -4,9 +4,10 @@ let gInserted = false;
 let gInsertedScript = false;
 let unmute = false;
 
+// Pega o ID do vídeo da URL
 function getVideoIDFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('video_id');  // Pega o ID do vídeo da URL
+    return urlParams.get('video_id');
 }
 
 function globalInsert() {
@@ -19,7 +20,12 @@ function globalInsert() {
 
         const script = document.createElement("script");
         script.src = "https://cdn.plyr.io/3.7.8/plyr.js";
-        document.body.appendChild(script);
+        const existingScript = document.body.getElementsByTagName("script")[0];
+        if (existingScript) {
+            document.body.insertBefore(script, existingScript);
+        } else {
+            document.body.appendChild(script);
+        }
 
         gInserted = true;
         gInsertedScript = script;
@@ -41,7 +47,7 @@ function init(options) {
     const {
         id,
         videoID,
-        loop = false,
+        loop = true,
         color,
         radius,
         controls = ["play-large", "play", "progress", "current-time", "mute", "volume", "captions", "settings", "pip", "airplay", "fullscreen"],
@@ -55,7 +61,7 @@ function init(options) {
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${videoID}?enablejsapi=1&autoplay=1&mute=1`;
+    iframe.src = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&modestbranding=1&autoplay=${autoplay ? 1 : 0}&mute=1`; 
     iframe.allowFullscreen = true;
     iframe.allowtransparency = true;
     iframe.setAttribute("allow", "autoplay");
@@ -70,47 +76,33 @@ function init(options) {
         loop: { active: loop },
         controls,
         settings,
-        muted: true,  // Vídeo sempre começa mutado
+        muted: true,  // Sempre começa mutado
         keyboard: { focused: false, global: false }
     });
 
     player.on("ready", function () {
-        const overlay = document.createElement("div");
-        overlay.style.position = "absolute";
-        overlay.style.top = "0";
-        overlay.style.left = "0";
-        overlay.style.width = "100%";
-        overlay.style.height = "100vh";
-
-        const videoWrapper = document.querySelector(`#${id} > div.plyr__video-wrapper`);
-        videoWrapper.appendChild(overlay);
-
-        document.querySelector(`#${id}`).style.filter = "blur(0)";
-
         container.appendChild(unmuteButton);
         unmuteButton.addEventListener("click", function () {
             player.muted = false;
             unmuteButton.style.display = "none";
-            player.play().catch(() => {
-                console.error("Erro ao tentar reproduzir o vídeo.");
-            });
+            player.currentTime = 0;
             unmute = true;
+            player.play();  // Garantir que o vídeo continue rodando
         });
 
-        player.play().catch(() => {
-            console.error("Erro ao tentar reproduzir o vídeo automaticamente.");
+        player.on("click", function () {
+            if (player.muted && !unmute) {
+                player.muted = false;
+                unmuteButton.style.display = "none";
+                player.play();
+                unmute = true;
+            }
         });
-    });
-
-    player.on("volumechange", function () {
-        if (!player.muted) {
-            unmuteButton.style.display = "none";
-        }
     });
 }
 
 function start() {
-    const videoID = getVideoIDFromURL(); // Pega o ID do vídeo da URL
+    const videoID = getVideoIDFromURL();
     if (!videoID) {
         console.error("ID do vídeo não encontrado na URL.");
         return;
@@ -121,27 +113,27 @@ function start() {
         gInsertedScript.addEventListener("load", function () {
             init({
                 id: 'player',
-                videoID: videoID, // Passa o ID do vídeo
+                videoID: videoID,
                 loop: false,
                 color: 'red',
                 radius: '10',
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
                 settings: ['captions', 'quality', 'speed', 'loop'],
-                autoplay: false
+                autoplay: false,  // Desativar autoplay no mobile
             });
         });
     } else {
         init({
             id: 'player',
-            videoID: videoID, // Passa o ID do vídeo
+            videoID: videoID,
             loop: false,
             color: 'red',
             radius: '10',
             controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
             settings: ['captions', 'quality', 'speed', 'loop'],
-            autoplay: false
+            autoplay: false,
         });
     }
 }
 
-start(); // Inicia o player quando o script for carregado
+start();
