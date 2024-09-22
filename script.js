@@ -13,9 +13,11 @@ function initPlayer(videoID) {
 
     // Cria o iframe do YouTube
     const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&modestbranding=1&mute=1&autoplay=1`;
+    iframe.src = `https://www.youtube.com/embed/${videoID}?rel=0&showinfo=0&modestbranding=1&autoplay=1&mute=1&controls=0&disablekb=1`;
     iframe.allowFullscreen = true;
     iframe.allow = "autoplay; encrypted-media";
+    iframe.width = '100%';
+    iframe.height = '100%';
 
     // Cria o botão de ativar áudio
     const unmuteButton = document.createElement('button');
