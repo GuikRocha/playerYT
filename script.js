@@ -12,10 +12,6 @@ function globalInsert() {
     if (!gInserted) {
         const style = document.createElement("style");
         style.innerHTML = `
-            .plyr iframe[id^=youtube] {
-                top: -100%!important;
-                min-height: 300%!important;
-            }
             .plyr {
                 filter: blur(1.5rem);
                 transition: filter 1.3s;
@@ -78,10 +74,12 @@ function init(options) {
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${embed}`;
+    iframe.src = `https://www.youtube.com/embed/${embed}?autoplay=0&mute=1&enablejsapi=1&controls=0&rel=0`;
     iframe.allowFullscreen = true;
-    iframe.allowtransparency = true;
-    iframe.setAttribute("allow", "autoplay");
+    iframe.setAttribute("allow", "autoplay; fullscreen");
+    iframe.width = "100%";
+    iframe.height = "100%";
+    iframe.frameBorder = "0";
 
     const unmuteButton = document.createElement("button");
     unmuteButton.className = `${id}-unmute unmute-button`;
