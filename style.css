@@ -1,14 +1,11 @@
-.plyr iframe[id^=youtube] {
-    top: -100%!important;
-    min-height: 300%!important;
-}
-
+/* Estilos básicos do player */
 .plyr {
-    filter: blur(1.5rem);
-    transition: filter 1.3s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+    width: 100%;
+    height: auto;
+    position: relative;
 }
 
+/* Estilos do botão de desmutar */
 .unmute-button {
     display: block !important;
     position: fixed !important;
@@ -21,7 +18,7 @@
     background: #ff3c3c !important;
     padding: 15px !important;
     border-radius: 5px !important;
-    width: 50% !important;
+    width: 200px !important;
     box-shadow: 0px 3px 10px #00000077 !important;
     cursor: pointer !important;
     color: #fff !important;
@@ -30,6 +27,7 @@
     transition: transform 0.3s ease !important;
 }
 
+/* Efeito no botão ao passar o mouse */
 .unmute-button:hover {
     transform: translate(-50%, -50%) scale(1.1) !important;
 }
