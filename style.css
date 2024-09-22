@@ -1,40 +1,34 @@
-/* Estilos do player */
-#player {
-    position: relative;
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    aspect-ratio: 16/9;
+.plyr iframe[id^=youtube] {
+    top: -100%!important;
+    min-height: 300%!important;
 }
 
-/* Estilos do botão de desmutar */
+.plyr {
+    filter: blur(1.5rem);
+    transition: filter 1.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+}
+
 .unmute-button {
-    display: block !important;
-    position: fixed !important;
+    border: none !important;
+    text-align: center !important;
+    position: absolute !important;
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
-    z-index: 9999 !important;
-    border: none !important;
-    text-align: center !important;
     background: #ff3c3c !important;
     padding: 15px !important;
     border-radius: 5px !important;
-    width: 200px !important;
+    width: 50% !important;
     box-shadow: 0px 3px 10px #00000077 !important;
     cursor: pointer !important;
+    z-index: 9999999999 !important;
     color: #fff !important;
     font-weight: bold !important;
     font-size: 1rem !important;
     transition: transform 0.3s ease !important;
 }
 
-/* Efeito no botão ao passar o mouse */
 .unmute-button:hover {
     transform: translate(-50%, -50%) scale(1.1) !important;
-}
-
-/* Esconde os controles do player nativo do YouTube */
-iframe {
-    border: none;
 }
