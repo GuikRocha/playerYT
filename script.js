@@ -67,10 +67,10 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${embed}?enablejsapi=1&controls=1&rel=0`; // Removido autoplay e mute para evitar problemas
+    iframe.src = `https://www.youtube.com/embed/${embed}?enablejsapi=1&controls=0&rel=0&autoplay=${autoplay ? 1 : 0}&mute=1`;
     iframe.allowFullscreen = true;
     iframe.allowtransparency = true;
-    iframe.setAttribute("allow", "autoplay; encrypted-media; fullscreen; picture-in-picture");
+    iframe.setAttribute("allow", "autoplay; fullscreen");
     iframe.width = "100%";
     iframe.height = "100%";
     iframe.frameBorder = "0";
@@ -78,7 +78,6 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
     const unmuteButton = document.createElement("button");
     unmuteButton.className = `${id}-unmute unmute-button`;
     unmuteButton.innerHTML = "&#128266; Ativar Áudio";
-    unmuteButton.style.display = "none"; // Inicia escondido, só mostra se necessário
 
     container.appendChild(iframe);
 
@@ -86,43 +85,39 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
         loop: { active: loop },
         controls,
         settings,
-        muted: true, // Inicia mudo
+        muted: true,
         keyboard: { focused: false, global: false }
     });
 
+    // Aguardando o player estar pronto
     player.on("ready", function () {
         document.querySelector(`#${id}`).style.filter = "blur(0)";
 
         if (!autoplay) {
-            // Não reproduz automaticamente, requer interação
-            player.pause();
-
-            // Exibe o botão de desmutar
-            unmuteButton.style.display = "block";
+            // Exibe o botão de desmutar se não houver autoplay
             container.appendChild(unmuteButton);
 
+            // Ação ao clicar no botão de desmutar
             unmuteButton.addEventListener("click", function () {
                 player.muted = false;  // Desmuta o player
-                player.play();  // Garante que o vídeo seja reproduzido
                 unmuteButton.style.display = "none";  // Esconde o botão
-                unmute = true;  // Marca que o vídeo foi desmutado manualmente
+                player.play();  // Garante que o vídeo seja reproduzido
             });
 
-            // Também desmuta se o vídeo for clicado
-            player.on("play", function () {
+            player.on("click", function () {
                 if (player.muted) {
-                    player.muted = false;
+                    player.muted = false;  // Desmuta o player
+                    unmuteButton.style.display = "none";  // Esconde o botão
+                    player.play();  // Garante que o vídeo seja reproduzido
                 }
-                unmuteButton.style.display = "none"; // Esconde o botão quando o vídeo começar a tocar
             });
         }
     });
 
-    // Verifica se o volume foi alterado e esconde o botão de desmutar
+    // Ação quando o volume é ajustado
     player.on("volumechange", function () {
         if (!player.muted) {
-            unmuteButton.style.display = "none";
+            unmuteButton.style.display = "none";  // Esconde o botão quando o volume for ajustado
         }
     });
 }
-
