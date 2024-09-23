@@ -2,13 +2,11 @@
     top: -100%!important;
     min-height: 300%!important;
 }
-
 .plyr {
     filter: blur(1.5rem);
     transition: filter 1.3s;
     box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
 }
-
 .unmute-button {
     border: none!important;
     text-align: center!important;
@@ -28,7 +26,6 @@
     font-size: 1rem!important;
     transition: transform 0.3s ease!important;
 }
-
 .unmute-button:hover {
     transform: translate(-50%, -50%) scale(1.1)!important;
 }

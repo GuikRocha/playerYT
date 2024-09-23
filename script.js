@@ -1,47 +1,28 @@
 "use strict";
 
 let gInserted = false;
+let gInsertedScript = false;
 let unmute = false;
-
-function getQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-}
 
 function globalInsert() {
     if (!gInserted) {
-        const style = document.createElement("style");
-        style.innerHTML = `
-            .plyr {
-                filter: blur(1.5rem);
-                transition: filter 1.3s;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
-            }
-            .unmute-button {
-                border: none!important;
-                text-align: center!important;
-                position: absolute!important;
-                top: 50%!important;
-                left: 50%!important;
-                transform: translate(-50%, -50%)!important;
-                background: #ff3c3c!important;
-                padding: 15px!important;
-                border-radius: 5px!important;
-                width: 50%!important;
-                box-shadow: 0px 3px 10px #00000077!important;
-                cursor: pointer!important;
-                z-index: 9999999999!important;
-                color: #fff!important;
-                font-weight: bold!important;
-                font-size: 1rem!important;
-                transition: transform 0.3s ease!important;
-            }
-            .unmute-button:hover {
-                transform: translate(-50%, -50%) scale(1.1)!important;
-            }
-        `;
-        document.head.appendChild(style);
+        const cssLink = document.createElement("link");
+        cssLink.type = "text/css";
+        cssLink.rel = "stylesheet";
+        cssLink.href = "https://cdn.plyr.io/3.7.8/plyr.css";
+        document.head.appendChild(cssLink);
+
+        const script = document.createElement("script");
+        script.src = "https://cdn.plyr.io/3.7.8/plyr.js";
+        const existingScript = document.body.getElementsByTagName("script")[0];
+        if (existingScript) {
+            document.body.insertBefore(script, existingScript);
+        } else {
+            document.body.appendChild(script);
+        }
+
         gInserted = true;
+        gInsertedScript = script;
     }
 }
 
@@ -68,18 +49,28 @@ function init(options) {
         autoplay = false
     } = options;
 
+    globalInsert();
+
+    if (gInsertedScript) {
+        gInsertedScript.addEventListener("load", function () {
+            setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay);
+        });
+    } else {
+        setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay);
+    }
+}
+
+function setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay) {
     instanceStyle(id, color, radius);
 
     const container = document.getElementById(id);
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${embed}?autoplay=0&mute=1&enablejsapi=1&controls=0&rel=0`;
+    iframe.src = `https://www.youtube.com/embed/${embed}`;
     iframe.allowFullscreen = true;
-    iframe.setAttribute("allow", "autoplay; fullscreen");
-    iframe.width = "100%";
-    iframe.height = "100%";
-    iframe.frameBorder = "0";
+    iframe.allowtransparency = true;
+    iframe.setAttribute("allow", "autoplay");
 
     const unmuteButton = document.createElement("button");
     unmuteButton.className = `${id}-unmute unmute-button`;
@@ -132,26 +123,4 @@ function init(options) {
             player.play();
         }
     });
-}
-
-function start(options) {
-    globalInsert();
-    init(options);
-}
-
-const embed = getQueryParam('embed'); // Obtém o parâmetro 'embed' da URL
-
-if (embed) {
-    start({
-        id: 'player',
-        embed: embed, // Usa o embed fornecido pela URL
-        loop: false,
-        color: 'red',
-        radius: '10',
-        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
-        settings: ['captions', 'quality', 'speed', 'loop'],
-        autoplay: false,
-    });
-} else {
-    console.error('Parâmetro "embed" não foi encontrado na URL.');
 }
