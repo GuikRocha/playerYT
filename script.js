@@ -53,7 +53,7 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${embed}?enablejsapi=1&controls=1&rel=0&playsinline=1`; // playsinline=1 para dispositivos móveis
+    iframe.src = `https://www.youtube.com/embed/${embed}?enablejsapi=1&rel=0&showinfo=0&controls=0&playsinline=1`; // Parâmetros para esconder info do YouTube
     iframe.allowFullscreen = true;
     iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
     iframe.width = "100%";
