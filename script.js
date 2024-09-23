@@ -1,6 +1,8 @@
 "use strict";
 
 let gInserted = false;
+let gInsertedScript = false;
+let unmute = false;
 
 function globalInsert() {
     if (!gInserted) {
@@ -12,9 +14,15 @@ function globalInsert() {
 
         const script = document.createElement("script");
         script.src = "https://cdn.plyr.io/3.7.8/plyr.js";
-        document.body.appendChild(script);
+        const existingScript = document.body.getElementsByTagName("script")[0];
+        if (existingScript) {
+            document.body.insertBefore(script, existingScript);
+        } else {
+            document.body.appendChild(script);
+        }
 
         gInserted = true;
+        gInsertedScript = script;
     }
 }
 
@@ -43,7 +51,13 @@ function init(options) {
 
     globalInsert();
 
-    setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay);
+    if (gInsertedScript) {
+        gInsertedScript.addEventListener("load", function () {
+            setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay);
+        });
+    } else {
+        setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay);
+    }
 }
 
 function setupPlayer(id, embed, loop, color, radius, controls, settings, autoplay) {
@@ -53,12 +67,17 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${embed}?enablejsapi=1&rel=0&showinfo=0&controls=0&playsinline=1`; // Parâmetros para esconder info do YouTube
+    iframe.src = `https://www.youtube.com/embed/${embed}?autoplay=0&mute=1&enablejsapi=1&controls=0&rel=0`;
     iframe.allowFullscreen = true;
-    iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
+    iframe.allowtransparency = true;
+    iframe.setAttribute("allow", "autoplay");
     iframe.width = "100%";
     iframe.height = "100%";
     iframe.frameBorder = "0";
+
+    const unmuteButton = document.createElement("button");
+    unmuteButton.className = `${id}-unmute unmute-button`;
+    unmuteButton.innerHTML = "&#128266; Ativar Áudio";
 
     container.appendChild(iframe);
 
@@ -66,28 +85,45 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
         loop: { active: loop },
         controls,
         settings,
-        muted: true, // Inicia mudo
+        muted: autoplay ? false : true,
         keyboard: { focused: false, global: false }
     });
 
-    player.on("ready", () => {
-        player.muted = true; // Mantém mudo até interação
-        if (!autoplay) {
-            player.pause(); // Não reproduz automaticamente em mobile
-        }
-    });
+    player.on("ready", function () {
+        const overlay = document.createElement("div");
+        overlay.style.position = "absolute";
+        overlay.style.top = "0";
+        overlay.style.left = "0";
+        overlay.style.width = "100%";
+        overlay.style.height = "100vh";
 
-    // Reproduz e desmuta ao clicar no player
-    player.on("play", () => {
-        if (player.muted) {
-            player.muted = false;
-        }
-    });
+        const videoWrapper = document.querySelector(`#${id} > div.plyr__video-wrapper`);
+        videoWrapper.appendChild(overlay);
 
-    // Garante que o áudio seja ativado corretamente
-    player.on("volumechange", () => {
-        if (!player.muted) {
-            player.muted = false;
+        document.querySelector(`#${id}`).style.filter = "blur(0)";
+
+        if (autoplay) {
+            container.appendChild(unmuteButton);
+            unmuteButton.addEventListener("click", function () {
+                player.muted = false;
+                unmuteButton.style.display = "none";
+                player.currentTime = 0;
+                unmute = true;
+            });
+
+            player.on("click", function () {
+                if (player.muted && !unmute) {
+                    player.muted = false;
+                    unmuteButton.style.display = "none";
+                    player.currentTime = 0;
+                    player.play();
+                    unmute = true;
+                } else if (!player.muted) {
+                    unmuteButton.style.display = "none";
+                }
+            });
+
+            player.play();
         }
     });
 }
