@@ -67,10 +67,13 @@ function setupPlayer(id, embed, loop, color, radius, controls, settings, autopla
     container.classList.add("plyr__video-embed");
 
     const iframe = document.createElement("iframe");
-    iframe.src = `https://www.youtube.com/embed/${embed}`;
+    iframe.src = `https://www.youtube.com/embed/${embed}?autoplay=0&mute=1&enablejsapi=1&controls=0&rel=0`;
     iframe.allowFullscreen = true;
     iframe.allowtransparency = true;
     iframe.setAttribute("allow", "autoplay");
+    iframe.width = "100%";
+    iframe.height = "100%";
+    iframe.frameBorder = "0";
 
     const unmuteButton = document.createElement("button");
     unmuteButton.className = `${id}-unmute unmute-button`;
