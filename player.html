@@ -11,14 +11,15 @@
 
     <style>
         /* Custom styles */
-        body {
+        body, html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #000;
         }
 
         #player {
@@ -29,15 +30,14 @@
             overflow: hidden;
         }
 
-        .plyr {
-            filter: blur(1.5rem);
-            transition: filter 1.3s;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
         }
 
         .unmute-button {
-            border: none;
-            text-align: center;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -46,24 +46,16 @@
             padding: 15px;
             border-radius: 5px;
             width: 50%;
-            box-shadow: 0px 3px 10px #00000077;
-            cursor: pointer;
-            z-index: 9999999999;
             color: #fff;
             font-weight: bold;
             font-size: 1rem;
-            transition: transform 0.3s ease;
+            text-align: center;
+            cursor: pointer;
+            z-index: 9999;
         }
 
         .unmute-button:hover {
             transform: translate(-50%, -50%) scale(1.1);
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
         }
     </style>
 </head>
@@ -74,145 +66,55 @@
     <script>
         "use strict";
 
-        let gInserted = false;
-        let gInsertedScript = false;
-        let unmute = false;
+        // Variáveis de controle
+        let player;
+        let unmuteButton;
 
-        function globalInsert() {
-            if (!gInserted) {
-                const cssLink = document.createElement("link");
-                cssLink.type = "text/css";
-                cssLink.rel = "stylesheet";
-                cssLink.href = "https://cdn.plyr.io/3.7.8/plyr.css";
-                document.head.appendChild(cssLink);
+        // Função para iniciar o player do YouTube com API
+        function onYouTubeIframeAPIReady() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoId = urlParams.get("embed") || "bPh9MQNQOa0"; // vídeo padrão se não houver 'embed' na URL
 
-                const script = document.createElement("script");
-                script.src = "https://cdn.plyr.io/3.7.8/plyr.js";
-                const existingScript = document.body.getElementsByTagName("script")[0];
-                if (existingScript) {
-                    document.body.insertBefore(script, existingScript);
-                } else {
-                    document.body.appendChild(script);
-                }
-
-                gInserted = true;
-                gInsertedScript = script;
-            }
-        }
-
-        function instanceStyle(id, color, radius) {
-            const style = document.createElement("style");
-            style.innerHTML = `
-                #${id} {
-                    --plyr-color-main: ${color || "#00b3ff"};
-                    border-radius: ${radius || "10"}px;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        function init(options) {
-            const {
-                id,
-                embed,
-                loop = true,
-                color,
-                radius,
-                controls = ["play-large", "play", "progress", "current-time", "mute", "volume", "captions", "settings", "pip", "airplay", "fullscreen"],
-                settings = ["captions", "quality", "speed", "loop"],
-                autoplay = false
-            } = options;
-
-            instanceStyle(id, color, radius);
-
-            const container = document.getElementById(id);
-            container.classList.add("plyr__video-embed");
-
-            // Adiciona as opções para ocultar logo, título e outros controles no YouTube
-            const iframe = document.createElement("iframe");
-            iframe.src = `https://www.youtube.com/embed/${embed}?controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&fs=1&playsinline=1&enablejsapi=1&mute=1`;
-            iframe.allowFullscreen = true;
-            iframe.allowtransparency = true;
-            iframe.setAttribute("allow", "autoplay");
-
-            const unmuteButton = document.createElement("button");
-            unmuteButton.className = `${id}-unmute unmute-button`;
-            unmuteButton.innerHTML = "&#128266; Ativar Áudio";
-
-            container.appendChild(iframe);
-
-            const player = new Plyr(`#${id}`, {
-                loop: { active: loop },
-                controls,
-                settings,
-                muted: autoplay ? false : true,
-                keyboard: { focused: false, global: false }
-            });
-
-            player.on("ready", function () {
-                const overlay = document.createElement("div");
-                overlay.style.position = "absolute";
-                overlay.style.top = "0";
-                overlay.style.left = "0";
-                overlay.style.width = "100%";
-                overlay.style.height = "100vh";
-
-                const videoWrapper = document.querySelector(`#${id} > div.plyr__video-wrapper`);
-                videoWrapper.appendChild(overlay);
-
-                document.querySelector(`#${id}`).style.filter = "blur(0)";
-
-                if (autoplay) {
-                    container.appendChild(unmuteButton);
-                    unmuteButton.addEventListener("click", function () {
-                        player.muted = false;
-                        unmuteButton.style.display = "none";
-                        player.currentTime = 0;
-                        unmute = true;
-                    });
-
-                    player.on("click", function () {
-                        if (player.muted && !unmute) {
-                            player.muted = false;
-                            unmuteButton.style.display = "none";
-                            player.currentTime = 0;
-                            player.play();
-                            unmute = true;
-                        } else if (!player.muted) {
-                            unmuteButton.style.display = "none";
-                        }
-                    });
-
-                    player.play();
+            player = new YT.Player('player', {
+                videoId: videoId,
+                playerVars: {
+                    'controls': 0,          // Oculta os controles
+                    'modestbranding': 1,    // Minimiza o branding do YouTube
+                    'rel': 0,               // Impede que vídeos relacionados sejam exibidos no final
+                    'showinfo': 0,          // Oculta o título e outras informações
+                    'iv_load_policy': 3,    // Desativa anotações
+                    'fs': 1,                // Permite fullscreen
+                    'playsinline': 1,       // Força o vídeo a tocar em linha no mobile
+                    'mute': 1,              // Inicia o vídeo mudo
+                    'autoplay': 1           // Inicia o vídeo automaticamente
+                },
+                events: {
+                    'onReady': onPlayerReady
                 }
             });
         }
 
-        function start(options) {
-            globalInsert();
-            if (gInsertedScript) {
-                gInsertedScript.addEventListener("load", function () {
-                    init(options);
-                });
-            } else {
-                init(options);
-            }
+        // Função chamada quando o player estiver pronto
+        function onPlayerReady(event) {
+            unmuteButton = document.createElement("div");
+            unmuteButton.className = "unmute-button";
+            unmuteButton.innerText = "🔊 Ativar Áudio";
+            document.body.appendChild(unmuteButton);
+
+            unmuteButton.addEventListener("click", function() {
+                player.unMute();
+                unmuteButton.style.display = "none";  // Esconde o botão após ativar o áudio
+            });
+
+            event.target.playVideo();
         }
 
-        // Extrair parâmetros da URL para definir o vídeo embutido
-        const urlParams = new URLSearchParams(window.location.search);
-        const embed = urlParams.get("embed");
-
-        start({
-            id: 'player',
-            embed: embed,
-            loop: false,
-            color: 'red',
-            radius: '10',
-            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
-            settings: ['captions', 'quality', 'speed', 'loop'],
-            autoplay: false,
-        });
+        // Carregando a API do YouTube dinamicamente
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
     </script>
+
 </body>
 </html>
