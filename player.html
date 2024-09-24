@@ -58,6 +58,13 @@
         .unmute-button:hover {
             transform: translate(-50%, -50%) scale(1.1);
         }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -121,8 +128,9 @@
             const container = document.getElementById(id);
             container.classList.add("plyr__video-embed");
 
+            // Adiciona as opções para ocultar logo, título e outros controles no YouTube
             const iframe = document.createElement("iframe");
-            iframe.src = `https://www.youtube.com/embed/${embed}?controls=0&modestbranding=1`;
+            iframe.src = `https://www.youtube.com/embed/${embed}?controls=0&modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&fs=1&playsinline=1&enablejsapi=1`;
             iframe.allowFullscreen = true;
             iframe.allowtransparency = true;
             iframe.setAttribute("allow", "autoplay");
